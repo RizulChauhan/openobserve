@@ -1,0 +1,708 @@
+===== COMPLETE LIST OF CHANGED FILES (13 files) =====
+# AUTHORITATIVE: this list is never truncated. The diff BODY below may be trimmed for
+# very large PRs, so decide WHICH files/areas changed (e.g. web/src frontend) from THIS list.
+.claude/skills/ui-architect/references/core-controls-table.md
+tests/ui-testing/ci-matrix/ci_matrix_regression.json
+tests/ui-testing/pages/tracesPages/tracesPage.js
+tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-15477-open-trace-new-tab.spec.js
+web/src/lib/core/Table/OTable.types.ts
+web/src/lib/core/Table/OTable.vue
+web/src/lib/core/Table/sub-components/OTableBody.vue
+web/src/lib/core/Table/sub-components/OTableBodyRow.spec.ts
+web/src/lib/core/Table/sub-components/OTableBodyRow.vue
+web/src/plugins/traces/SearchResult.spec.ts
+web/src/plugins/traces/SearchResult.vue
+web/src/plugins/traces/components/TracesSearchResultList.spec.ts
+web/src/plugins/traces/components/TracesSearchResultList.vue
+===== END CHANGED FILES =====
+
+diff --git a/.claude/skills/ui-architect/references/core-controls-table.md b/.claude/skills/ui-architect/references/core-controls-table.md
+index 0f8760527eb..f4b949cfb1c 100644
+--- a/.claude/skills/ui-architect/references/core-controls-table.md
++++ b/.claude/skills/ui-architect/references/core-controls-table.md
+@@ -440,7 +440,7 @@ arrow, the rows re-order, and the order is wrong.
+ - Filter: `update:globalFilter`, `filter-change`
+ - Selection: `update:selectedIds`, `selection-change` (emits selected rows)
+ - Expansion: `update:expandedIds`
+-- Row: `row-click`, `row-dblclick`, `row-mouseenter`, `row-mouseleave`, `cell-click`
++- Row: `row-click`, `row-dblclick`, `row-auxclick` (middle button), `row-mouseenter`, `row-mouseleave`, `cell-click`
+ - Columns: `column-order-change`, `column-visibility-change`, `update:columnSizes`
+ - Virtual scroll: `scroll`, `scroll-end`
+ 
+diff --git a/tests/ui-testing/ci-matrix/ci_matrix_regression.json b/tests/ui-testing/ci-matrix/ci_matrix_regression.json
+index 53b5602e233..1f6bff54134 100644
+--- a/tests/ui-testing/ci-matrix/ci_matrix_regression.json
++++ b/tests/ui-testing/ci-matrix/ci_matrix_regression.json
+@@ -108,7 +108,8 @@
+       "traces-15189-saved-views-more-menu.spec.js",
+       "traces-15222-string-replay-flag.spec.js",
+       "traces-15248-llm-session-reply.spec.js",
+-      "traces-15269-services-catalog-state.spec.js"
++      "traces-15269-services-catalog-state.spec.js",
++      "traces-15477-open-trace-new-tab.spec.js"
+     ],
+     "disabled": []
+   },
+diff --git a/tests/ui-testing/pages/tracesPages/tracesPage.js b/tests/ui-testing/pages/tracesPages/tracesPage.js
+index 128c702f7bf..8ff1909d780 100644
+--- a/tests/ui-testing/pages/tracesPages/tracesPage.js
++++ b/tests/ui-testing/pages/tracesPages/tracesPage.js
+@@ -895,6 +895,32 @@ export class TracesPage {
+     }
+   }
+ 
++  traceRowLinks() {
++    return this.page.locator('[data-test="trace-row-link"]');
++  }
++
++  // A cell without the link, so the row's own middle-click handler runs rather than the browser's native link handling.
++  firstRowNonLinkCell() {
++    return this.page
++      .locator('[data-test^="o2-table-row-"]')
++      .first()
++      .locator('td[data-test^="o2-table-cell-"]:not(:has(a))')
++      .first();
++  }
++
++  trackNewPages(context) {
++    const opened = [];
++    context.on('page', (p) => opened.push(p));
++    return opened;
++  }
++
++  // The fixed wait is deliberate: a second tab would open late, and there is no event for "nothing else opened".
++  async expectOneNewPage(opened) {
++    await expect.poll(() => opened.length, { timeout: 10000 }).toBe(1);
++    await this.page.waitForTimeout(1000);
++    expect(opened, 'exactly one new tab must open').toHaveLength(1);
++  }
++
+   /**
+    * Setup trace search with stream and time range
+    * @param {string} streamName - Stream name to select
+diff --git a/tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-15477-open-trace-new-tab.spec.js b/tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-15477-open-trace-new-tab.spec.js
+new file mode 100644
+index 00000000000..d2fed8fa0a9
+--- /dev/null
++++ b/tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-15477-open-trace-new-tab.spec.js
+@@ -0,0 +1,65 @@
++const { test, expect, navigateToBase } = require('../../utils/enhanced-baseFixtures.js');
++const testLogger = require('../../utils/test-logger.js');
++const PageManager = require('../../../pages/page-manager.js');
++const { ingestSequencedErrorSpans } = require('../../utils/trace-ingestion.js');
++const { deleteStream } = require('../../utils/traces-api.js');
++
++const DETAILS_PATH = '/traces/trace-details';
++
++test.describe('Open a trace result in a new tab (#15477)', () => {
++  let pm;
++  let stream;
++
++  test.beforeEach(async ({ page }, testInfo) => {
++    testLogger.testStart(testInfo.title, testInfo.file);
++    await navigateToBase(page);
++    pm = new PageManager(page);
++    stream = 'e2e_15477_' + Math.random().toString(36).slice(2, 7);
++    const ingest = await ingestSequencedErrorSpans(page, stream, 5);
++    expect(ingest.status, 'Precondition: seeded spans must ingest').toBe(200);
++    await pm.tracesPage.navigateToTracesUrlWithStream(stream);
++    await pm.tracesPage.setTimeRange('15m');
++    await pm.tracesPage.switchToSpansMode();
++    await expect(pm.tracesPage.traceRowLinks().first()).toBeVisible({ timeout: 30000 });
++  });
++
++  test.afterEach(async ({ page }, testInfo) => {
++    await deleteStream(page.request, stream);
++    testLogger.testEnd(testInfo.title, testInfo.status);
++  });
++
++  test('each result row carries a real link to its trace details', {
++    tag: ['@enhancement-15477', '@P2', '@regression', '@tracesRegression'],
++  }, async ({ page }) => {
++    const href = await pm.tracesPage.traceRowLinks().first().getAttribute('href');
++    expect(href, 'the operation name must be an anchor with an href').toContain(DETAILS_PATH);
++    expect(href).toContain('trace_id=');
++  });
++
++  test('cmd/ctrl-click and middle-click open the trace in a new tab and keep the list', {
++    tag: ['@enhancement-15477', '@P2', '@regression', '@tracesRegression'],
++  }, async ({ page, context }) => {
++    const opened = pm.tracesPage.trackNewPages(context);
++
++    await pm.tracesPage.traceRowLinks().first().click({ modifiers: ['ControlOrMeta'] });
++    await pm.tracesPage.expectOneNewPage(opened);
++    await expect(opened[0]).toHaveURL(new RegExp(DETAILS_PATH));
++    await opened[0].close();
++    opened.length = 0;
++
++    await pm.tracesPage.firstRowNonLinkCell().click({ button: 'middle' });
++    await pm.tracesPage.expectOneNewPage(opened);
++    await expect(opened[0]).toHaveURL(new RegExp(DETAILS_PATH));
++    await opened[0].close();
++
++    expect(page.url(), 'the original tab must stay on the results list').not.toContain(DETAILS_PATH);
++  });
++
++  test('a plain click still opens the trace in the same tab', {
++    tag: ['@enhancement-15477', '@P2', '@regression', '@tracesRegression'],
++  }, async ({ page, context }) => {
++    await pm.tracesPage.traceRowLinks().first().click();
++    await expect(page).toHaveURL(new RegExp(DETAILS_PATH));
++    expect(context.pages()).toHaveLength(1);
++  });
++});
+diff --git a/web/src/lib/core/Table/OTable.types.ts b/web/src/lib/core/Table/OTable.types.ts
+index f45ddd06115..8ebb0a73b0b 100644
+--- a/web/src/lib/core/Table/OTable.types.ts
++++ b/web/src/lib/core/Table/OTable.types.ts
+@@ -610,6 +610,8 @@ export interface OTableEmits<TData = any> {
+   // Row events
+   "row-click": [row: TData, event: MouseEvent];
+   "row-dblclick": [row: TData, event: MouseEvent];
++  /** Middle-button click on a row (not on an interactive child). */
++  "row-auxclick": [row: TData, event: MouseEvent];
+   "row-mouseenter": [row: TData, event: MouseEvent];
+   "row-mouseleave": [row: TData];
+   "cell-click": [params: { columnId: string; row: TData; value: any }];
+diff --git a/web/src/lib/core/Table/OTable.vue b/web/src/lib/core/Table/OTable.vue
+index 6d505edf933..1ea90882f29 100644
+--- a/web/src/lib/core/Table/OTable.vue
++++ b/web/src/lib/core/Table/OTable.vue
+@@ -1722,6 +1722,9 @@ defineExpose({
+             @row-dblclick="
+               (row: TData, evt: MouseEvent) => !staleDimmed && emit('row-dblclick', row, evt)
+             "
++            @row-auxclick="
++              (row: TData, evt: MouseEvent) => !staleDimmed && emit('row-auxclick', row, evt)
++            "
+             @row-mouseenter="(row: TData, evt: MouseEvent) => emit('row-mouseenter', row, evt)"
+             @row-mouseleave="(row: TData) => emit('row-mouseleave', row)"
+             @cell-click="(params: any) => !staleDimmed && emit('cell-click', params)"
+diff --git a/web/src/lib/core/Table/sub-components/OTableBody.vue b/web/src/lib/core/Table/sub-components/OTableBody.vue
+index 82f327baf97..15f2b7ed863 100644
+--- a/web/src/lib/core/Table/sub-components/OTableBody.vue
++++ b/web/src/lib/core/Table/sub-components/OTableBody.vue
+@@ -89,6 +89,7 @@ const emit = defineEmits<{
+   "toggle-expansion": [row: any];
+   "row-click": [row: any, event: MouseEvent];
+   "row-dblclick": [row: any, event: MouseEvent];
++  "row-auxclick": [row: any, event: MouseEvent];
+   "row-mouseenter": [row: any, event: MouseEvent];
+   "row-mouseleave": [row: any];
+   "cell-click": [params: { columnId: string; row: any; value: any }];
+@@ -274,6 +275,7 @@ const headingColspan = computed(
+       @toggle-expansion="emit('toggle-expansion', $event)"
+       @row-click="(row: any, evt: MouseEvent) => emit('row-click', row, evt)"
+       @row-dblclick="(row: any, evt: MouseEvent) => emit('row-dblclick', row, evt)"
++      @row-auxclick="(row: any, evt: MouseEvent) => emit('row-auxclick', row, evt)"
+       @row-mouseenter="(row: any, evt: MouseEvent) => emit('row-mouseenter', row, evt)"
+       @row-mouseleave="(row: any) => emit('row-mouseleave', row)"
+       @cell-click="emit('cell-click', $event)"
+@@ -339,6 +341,7 @@ const headingColspan = computed(
+         @toggle-expansion="emit('toggle-expansion', $event)"
+         @row-click="(row: any, evt: MouseEvent) => emit('row-click', row, evt)"
+         @row-dblclick="(row: any, evt: MouseEvent) => emit('row-dblclick', row, evt)"
++        @row-auxclick="(row: any, evt: MouseEvent) => emit('row-auxclick', row, evt)"
+         @row-mouseenter="(row: any, evt: MouseEvent) => emit('row-mouseenter', row, evt)"
+         @row-mouseleave="(row: any) => emit('row-mouseleave', row)"
+         @cell-click="emit('cell-click', $event)"
+@@ -406,6 +409,7 @@ const headingColspan = computed(
+       @toggle-expansion="emit('toggle-expansion', $event)"
+       @row-click="(row: any, evt: MouseEvent) => emit('row-click', row, evt)"
+       @row-dblclick="(row: any, evt: MouseEvent) => emit('row-dblclick', row, evt)"
++      @row-auxclick="(row: any, evt: MouseEvent) => emit('row-auxclick', row, evt)"
+       @row-mouseenter="(row: any, evt: MouseEvent) => emit('row-mouseenter', row, evt)"
+       @row-mouseleave="(row: any) => emit('row-mouseleave', row)"
+       @cell-click="emit('cell-click', $event)"
+diff --git a/web/src/lib/core/Table/sub-components/OTableBodyRow.spec.ts b/web/src/lib/core/Table/sub-components/OTableBodyRow.spec.ts
+index 246d21f6648..b1b8e403c71 100644
+--- a/web/src/lib/core/Table/sub-components/OTableBodyRow.spec.ts
++++ b/web/src/lib/core/Table/sub-components/OTableBodyRow.spec.ts
+@@ -140,3 +140,42 @@ describe("OTableBodyRow selection marking", () => {
+     expect(classes.some((c) => c.startsWith("focus-visible:outline"))).toBe(false);
+   });
+ });
++
++describe("OTableBodyRow auxclick", () => {
++  let wrapper: VueWrapper | undefined;
++  afterEach(() => wrapper?.unmount());
++
++  const mountEmitting = () => {
++    const onAuxclick = vi.fn();
++    const Host = defineComponent({
++      setup: () => () =>
++        h("table", [
++          h("tbody", [
++            h(OTableBodyRow, { row: row as any, table: {} as any, onRowAuxclick: onAuxclick }),
++          ]),
++        ]),
++    });
++    wrapper = mount(Host, { global: { plugins: [i18n] } });
++    return { onAuxclick, tr: wrapper.find('[data-test="o2-table-row-0"]') };
++  };
++
++  it("emits row-auxclick for a middle click and ignores other buttons", async () => {
++    const { onAuxclick, tr } = mountEmitting();
++    await tr.trigger("auxclick", { button: 2 });
++    expect(onAuxclick).not.toHaveBeenCalled();
++    await tr.trigger("auxclick", { button: 1 });
++    expect(onAuxclick).toHaveBeenCalledTimes(1);
++  });
++
++  it("skips a middle click that lands on a link inside the row but not on a plain cell", async () => {
++    const { onAuxclick, tr } = mountEmitting();
++    const anchor = document.createElement("a");
++    const cell = document.createElement("td");
++    tr.element.appendChild(cell);
++    cell.appendChild(anchor);
++    anchor.dispatchEvent(new MouseEvent("auxclick", { bubbles: true, button: 1 }));
++    expect(onAuxclick).not.toHaveBeenCalled();
++    cell.dispatchEvent(new MouseEvent("auxclick", { bubbles: true, button: 1 }));
++    expect(onAuxclick).toHaveBeenCalledTimes(1);
++  });
++});
+diff --git a/web/src/lib/core/Table/sub-components/OTableBodyRow.vue b/web/src/lib/core/Table/sub-components/OTableBodyRow.vue
+index 67e5b7be2bb..2e887f71272 100644
+--- a/web/src/lib/core/Table/sub-components/OTableBodyRow.vue
++++ b/web/src/lib/core/Table/sub-components/OTableBodyRow.vue
+@@ -83,6 +83,7 @@ const emit = defineEmits<{
+   "toggle-expansion": [row: any];
+   "row-click": [row: any, event: MouseEvent];
+   "row-dblclick": [row: any, event: MouseEvent];
++  "row-auxclick": [row: any, event: MouseEvent];
+   "row-mouseenter": [row: any, event: MouseEvent];
+   "row-mouseleave": [row: any];
+   "cell-click": [params: { columnId: string; row: any; value: any }];
+@@ -199,6 +200,13 @@ function onSelectCellClick() {
+   emit("toggle-selection", props.row.original);
+ }
+ 
++function onAuxclick(event: MouseEvent) {
++  if (event.button !== 1) return;
++  const target = event.target as HTMLElement | null;
++  if (target?.closest("button, a, input, select, textarea, label, [role='button']")) return;
++  emit("row-auxclick", props.row.original, event);
++}
++
+ function onDblclick(event: MouseEvent) {
+   emit("row-dblclick", props.row.original, event);
+ }
+@@ -252,6 +260,7 @@ function onRowMouseleave() {
+     :data-status-bar="statusBarColor ? 'true' : undefined"
+     @click="onClick"
+     @dblclick="onDblclick"
++    @auxclick="onAuxclick"
+     @mouseenter="onRowMouseenter"
+     @mouseleave="onRowMouseleave"
+   >
+diff --git a/web/src/plugins/traces/SearchResult.spec.ts b/web/src/plugins/traces/SearchResult.spec.ts
+index 0b6b97c1ac7..b1eb5764a10 100644
+--- a/web/src/plugins/traces/SearchResult.spec.ts
++++ b/web/src/plugins/traces/SearchResult.spec.ts
+@@ -372,6 +372,45 @@ describe("SearchResult", () => {
+     });
+   });
+ 
++  describe("Open trace in a new tab", () => {
++    const openFrom = async (row: any) => {
++      const open = vi.spyOn(window, "open").mockReturnValue(null);
++      const list = wrapper.findComponent({ name: "TracesSearchResultList" });
++      await list.vm.$emit("open-in-new-tab", row);
++      const call = open.mock.calls[0];
++      open.mockRestore();
++      return call;
++    };
++
++    afterEach(() => {
++      mockSearchObj.meta.searchMode = "traces";
++    });
++
++    it("opens the trace details with the row window and org in a noopener tab", async () => {
++      mockSearchObj.meta.searchMode = "traces";
++      const trace = { trace_id: "t-1", trace_start_time: 111, trace_end_time: 222 };
++      const [href, target, features] = await openFrom(trace);
++      const url = new URL(href as string, "http://localhost");
++      expect(url.searchParams.get("trace_id")).toBe("t-1");
++      expect(url.searchParams.get("from")).toBe("111");
++      expect(url.searchParams.get("to")).toBe("222");
++      expect(url.searchParams.get("org_identifier")).toBe("test-org");
++      expect(url.searchParams.has("span_id")).toBe(false);
++      expect(target).toBe("_blank");
++      expect(features).toBe("noopener");
++    });
++
++    it("includes span_id and the padded span window in spans mode", async () => {
++      mockSearchObj.meta.searchMode = "spans";
++      const span = { trace_id: "t-2", span_id: "s-9", start_time: 5_000_000, end_time: 6_000_000 };
++      const [href] = await openFrom(span);
++      const url = new URL(href as string, "http://localhost");
++      expect(url.searchParams.get("span_id")).toBe("s-9");
++      expect(url.searchParams.get("from")).toBe(String(5_000 - 60_000_000));
++      expect(url.searchParams.get("to")).toBe(String(6_000 + 3_600_000_000));
++    });
++  });
++
+   describe("Time boxed search", () => {
+     it("should handle time boxed search", async () => {
+       const timeBoxData = { key: 1000000000 };
+diff --git a/web/src/plugins/traces/SearchResult.vue b/web/src/plugins/traces/SearchResult.vue
+index 737fb88b6d4..090b54cd340 100644
+--- a/web/src/plugins/traces/SearchResult.vue
++++ b/web/src/plugins/traces/SearchResult.vue
+@@ -203,7 +203,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+           :ai-enabled="aiEnabled"
+           :stream-doc-time-range="streamDocTimeRange"
+           :query-window-us="queryWindowUs"
++          :row-href="traceDetailsHref"
+           @row-click="expandRowDetail"
++          @open-in-new-tab="openTraceInNewTab"
+           @page-change="(page: number) => changePage(page)"
+           @cross-page="(page: number) => changePage(page, { fromCrossing: true })"
+           @rows-per-page-change="changeRowsPerPage"
+@@ -371,36 +373,45 @@ export default defineComponent({
+       },
+     );
+ 
+-    const expandRowDetail = async (props: any) => {
+-      let from: number;
+-      let to: number;
+-      searchObj.meta.resultGrid.navigation.lastOpenedId =
+-        searchObj.meta.searchMode === "spans" ? props.span_id : props.trace_id;
+-
++    const traceTimeRange = (props: any) => {
+       if (searchObj.meta.searchMode === "spans") {
+         // start_time / end_time are nanoseconds in raw span rows — convert to µs
+         const spanStart = Math.floor((props.start_time || 0) / 1000);
+         const spanEnd = Math.ceil((props.end_time || props.start_time || 0) / 1000);
+-        from = spanStart - 60_000_000; // -1 min in µs
+-        to = spanEnd + 3_600_000_000; // +1 hr in µs
+-      } else {
+-        from = props.trace_start_time;
+-        to = props.trace_end_time;
++        return { from: spanStart - 60_000_000, to: spanEnd + 3_600_000_000 };
+       }
++      return { from: props.trace_start_time, to: props.trace_end_time };
++    };
++
++    const traceDetailsLocation = (props: any, from: number, to: number) => ({
++      name: "traceDetails",
++      query: {
++        stream: router.currentRoute.value.query.stream,
++        trace_id: props.trace_id,
++        ...(searchObj.meta.searchMode === "spans" ? { span_id: props.span_id } : {}),
++        from,
++        to,
++        org_identifier: store.state.selectedOrganization.identifier,
++      },
++    });
++
++    const traceDetailsHref = (row: any) => {
++      const { from, to } = traceTimeRange(row);
++      return router.resolve(traceDetailsLocation(row, from, to)).href;
++    };
++
++    const openTraceInNewTab = (row: any) => {
++      window.open(traceDetailsHref(row), "_blank", "noopener");
++    };
++
++    const expandRowDetail = async (props: any) => {
++      searchObj.meta.resultGrid.navigation.lastOpenedId =
++        searchObj.meta.searchMode === "spans" ? props.span_id : props.trace_id;
++      const { from, to } = traceTimeRange(props);
+ 
+       // The URL write is debounced; Back restores what this entry holds, so it must land before leaving.
+       await patchUrlViewState();
+-      router.push({
+-        name: "traceDetails",
+-        query: {
+-          stream: router.currentRoute.value.query.stream,
+-          trace_id: props.trace_id,
+-          ...(searchObj.meta.searchMode === "spans" ? { span_id: props.span_id } : {}),
+-          from,
+-          to,
+-          org_identifier: store.state.selectedOrganization.identifier,
+-        },
+-      });
++      router.push(traceDetailsLocation(props, from, to));
+ 
+       emit("get:traceDetails", props);
+     };
+@@ -522,6 +533,8 @@ export default defineComponent({
+       metricsDashboardRef,
+       scrollContainerRef,
+       expandRowDetail,
++      traceDetailsHref,
++      openTraceInNewTab,
+       onMetricsTimeRangeSelected,
+       onMetricsEditorFilterSet,
+       onMetricsEditorFilterRun,
+diff --git a/web/src/plugins/traces/components/TracesSearchResultList.spec.ts b/web/src/plugins/traces/components/TracesSearchResultList.spec.ts
+index f19ddb1fa98..745a217829c 100644
+--- a/web/src/plugins/traces/components/TracesSearchResultList.spec.ts
++++ b/web/src/plugins/traces/components/TracesSearchResultList.spec.ts
+@@ -14,7 +14,8 @@
+ // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ import { describe, it, expect, afterEach, vi, beforeEach } from "vitest";
+-import { mount, VueWrapper } from "@vue/test-utils";
++import { mount, flushPromises, VueWrapper } from "@vue/test-utils";
++import { nextTick } from "vue";
+ import i18n from "@/locales";
+ import store from "@/test/unit/helpers/store";
+ 
+@@ -117,7 +118,7 @@ vi.mock("@/lib/core/Table/OTable.vue", () => ({
+       "selectedStreamFields",
+       "wrap",
+     ],
+-    emits: ["row-click", "sort-change", "close-column", "column-order-change"],
++    emits: ["row-click", "row-auxclick", "sort-change", "close-column", "column-order-change"],
+     setup() {
+       return { cellActionsColumn: cellActionsColumnRef };
+     },
+@@ -168,6 +169,12 @@ vi.mock("./SpanStatusCodeBadge.vue", () => ({
+   },
+ }));
+ 
++// Reka UI portals menu content into <body>; render it inline so tests can query it.
++vi.mock("reka-ui", async (importOriginal) => {
++  const actual = await importOriginal<typeof import("reka-ui")>();
++  return { ...actual, ContextMenuPortal: actual.ContextMenuContent };
++});
++
+ import TracesSearchResultList from "./TracesSearchResultList.vue";
+ 
+ const makeHit = (id: string, errors = 0) => ({
+@@ -324,6 +331,125 @@ describe("TracesSearchResultList", () => {
+     });
+   });
+ 
++  // ─── Open in a new tab ────────────────────────────────────────────────────
++  describe("open in new tab", () => {
++    const hit = makeHit("t-new-tab");
++    const href = (row: any) => `/web/traces/trace?trace_id=${row.trace_id}`;
++
++    beforeEach(() => {
++      sharedSearchObj.data.resultGrid.columns = [{ id: "operation_name" }];
++    });
++
++    it("renders the operation name as a real link to the trace", () => {
++      wrapper = mount_({ hits: [hit], loading: false, rowHref: href });
++      const link = wrapper.find('[data-test="trace-row-link"]');
++      expect(link.exists()).toBe(true);
++      expect(link.element.tagName).toBe("A");
++      expect(link.attributes("href")).toBe("/web/traces/trace?trace_id=t-new-tab");
++    });
++
++    it("keeps the link out of the tab order because the row is already focusable", () => {
++      wrapper = mount_({ hits: [hit], loading: false, rowHref: href });
++      expect(wrapper.find('[data-test="trace-row-link"]').attributes("tabindex")).toBe("-1");
++    });
++
++    it("keeps the in-app open on a plain click and blocks the full page load", async () => {
++      wrapper = mount_({ hits: [hit], loading: false, rowHref: href });
++      const event = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
++      wrapper.find('[data-test="trace-row-link"]').element.dispatchEvent(event);
++      expect(event.defaultPrevented).toBe(true);
++      expect(wrapper.emitted("row-click")![0]).toEqual([hit]);
++      expect(wrapper.emitted("open-in-new-tab")).toBeFalsy();
++    });
++
++    it("leaves a ctrl/cmd click on the link to the browser", () => {
++      wrapper = mount_({ hits: [hit], loading: false, rowHref: href });
++      const event = new MouseEvent("click", {
++        bubbles: true,
++        cancelable: true,
++        button: 0,
++        ctrlKey: true,
++      });
++      wrapper.find('[data-test="trace-row-link"]').element.dispatchEvent(event);
++      expect(event.defaultPrevented).toBe(false);
++      expect(wrapper.emitted("row-click")).toBeFalsy();
++    });
++
++    it("opens a new tab on ctrl/cmd click anywhere on the row", async () => {
++      wrapper = mount_({ hits: [hit], loading: false, rowHref: href });
++      const table = wrapper.findComponent({ name: "OTable" });
++      await table.vm.$emit("row-click", hit, { ctrlKey: true });
++      await table.vm.$emit("row-click", hit, { metaKey: true });
++      expect(wrapper.emitted("open-in-new-tab")).toEqual([[hit], [hit]]);
++      expect(wrapper.emitted("row-click")).toBeFalsy();
++    });
++
++    it("renders no link and keeps ctrl click as a row click when the parent gives no href", async () => {
++      wrapper = mount_({ hits: [hit], loading: false });
++      expect(wrapper.find('a[data-test="trace-row-link"]').exists()).toBe(false);
++      const table = wrapper.findComponent({ name: "OTable" });
++      await table.vm.$emit("row-click", hit, { ctrlKey: true });
++      expect(wrapper.emitted("row-click")![0]).toEqual([hit]);
++      expect(wrapper.emitted("open-in-new-tab")).toBeFalsy();
++    });
++
++    it("opens a new tab on a middle click on the row", async () => {
++      wrapper = mount_({ hits: [hit], loading: false, rowHref: href });
++      const table = wrapper.findComponent({ name: "OTable" });
++      await table.vm.$emit("row-auxclick", hit, { button: 1 });
++      expect(wrapper.emitted("open-in-new-tab")![0]).toEqual([hit]);
++    });
++
++    it("ignores a middle click on the row when the parent gives no href", async () => {
++      wrapper = mount_({ hits: [hit], loading: false });
++      const table = wrapper.findComponent({ name: "OTable" });
++      await table.vm.$emit("row-auxclick", hit, { button: 1 });
++      expect(wrapper.emitted("open-in-new-tab")).toBeFalsy();
++    });
++
++    describe("context menu", () => {
++      const openMenu = async (props: Record<string, any>) => {
++        wrapper = mount(TracesSearchResultList, {
++          props: { hits: [hit], loading: false, ...props } as any,
++          global: { plugins: [i18n, store] },
++          attachTo: document.body,
++        });
++        const cell = document.createElement("td");
++        cell.setAttribute("data-test", "o2-table-cell-operation_name");
++        wrapper.find(".contents").element.appendChild(cell);
++        cell.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
++        // The table records the right-clicked cell after the capture-phase reset, as in the app.
++        const table = wrapper.findComponent({ name: "OTable" });
++        await table.vm.$emit("cell-contextmenu", {
++          columnId: "operation_name",
++          row: hit,
++          value: "x",
++        });
++        await nextTick();
++        await nextTick();
++        await flushPromises();
++      };
++      const item = () =>
++        wrapper.element.querySelector('[data-test="trace-context-menu-open-new-tab"]');
++
++      it("offers open in new tab with an href and emits the right-clicked row", async () => {
++        await openMenu({ rowHref: href });
++        expect(item()).not.toBeNull();
++        item()!.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
++        await flushPromises();
++        expect(wrapper.emitted("open-in-new-tab")![0]).toEqual([hit]);
++      });
++
++      it("omits open in new tab when the parent gives no href", async () => {
++        await openMenu({});
++        expect(
++          wrapper.element.querySelector('[data-test="trace-context-menu-field"]'),
++        ).not.toBeNull();
++        expect(item()).toBeNull();
++      });
++    });
++  });
++
+   // ─── Events ───────────────────────────────────────────────────────────────
+   describe("events", () => {
+     it("re-emits row-click from TracesTable", async () => {
+diff --git a/web/src/plugins/traces/components/TracesSearchResultList.vue b/web/src/plugins/traces/components/TracesSearchResultList.vue
+index 3aac0efb84b..ff4f138c04a 100644
+--- a/web/src/plugins/traces/components/TracesSearchResultList.vue
++++ b/web/src/plugins/traces/components/TracesSearchResultList.vue
+@@ -67,7 +67,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+                 :default-columns="false"
+                 :show-global-filter="false"
+                 pagination="none"
+-                @row-click="(row: any) => emit('row-click', row)"
++                @row-click="onRowClick"
++                @row-auxclick="onRowAuxclick"
+                 @sort-change="onSortChange"
+                 @column-order-change="onColumnReorder"
+                 @close-column="onCloseColumn"
+@@ -108,14 +109,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+                   <!-- The cell clips on its own, so the table-level `wrap`
+                        is not enough: without dropping `truncate` here the name
+                        stays cut off no matter what the table does. -->
+-                  <span
+-                    class="text-text-body text-xs"
+-                    :class="wrap ? '' : 'truncate'"
+-                    data-test="trace-row-operation-name"
++                  <component
++                    :is="rowHref ? 'a' : 'span'"
++                    :href="rowHref?.(row)"
++                    :tabindex="rowHref ? -1 : undefined"
++                    class="group block min-w-0"
++                    data-test="trace-row-link"
++                    @click="onRowLinkClick($event, row)"
+                   >
+-                    {{ row.operation_name }}
+-                    <OTooltip :content="row.operation_name" side="bottom" align="center" />
+-                  </span>
++                    <span
++                      class="text-text-body block text-xs group-hover:underline"
++                      :class="wrap ? '' : 'truncate'"
++                      data-test="trace-row-operation-name"
++                    >
++                      {{ row.operation_name }}
++                      <OTooltip :content="row.operation_name" side="bottom" align="center" />
++                    </span>
++                  </component>
+                 </template>
+ 
+                 <template #cell-duration="{ row }">
+@@ -197,6 +207,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+             </OContextMenuLabel>
+             <OContextMenuSeparator />
+ 
++            <OContextMenuItem
++              v-if="rowHref"
++              icon-left="open-in-new"
++              data-test="trace-context-menu-open-new-tab"
++              @select="emit('open-in-new-tab', contextCell.row)"
++            >
++              {{ t("common.openInNewTab") }}
++            </OContextMenuItem>
++
+             <OContextMenuItem
+               icon-left="content-copy"
+               data-test="trace-context-menu-copy-value"
+@@ -330,6 +349,8 @@ interface Props {
+    *  metrics charts above). Delegated to the table's virtualizer so the table
+    *  doesn't create a second, nested scrollbar. */
+   scrollEl?: HTMLElement | null;
++  /** Resolves a row to its trace-details URL so the name cell is a real link. */
++  rowHref?: (row: any) => string | undefined;
+ }
+ 
+ const store = useStore();
+@@ -351,10 +372,12 @@ const props = withDefaults(defineProps<Props>(), {
+   streamDocTimeRange: undefined,
+   queryWindowUs: undefined,
+   scrollEl: null,
++  rowHref: undefined,
+ });
+ 
+ const emit = defineEmits<{
+   "row-click": [row: any];
++  "open-in-new-tab": [row: any];
+   "page-change": [page: number];
+   "cross-page": [page: number];
+   "rows-per-page-change": [rowsPerPage: number];
+@@ -401,6 +424,24 @@ const addSearchTerm = (
+   }
+ };
+ 
++const onRowClick = (row: any, event?: MouseEvent) => {
++  if (props.rowHref && (event?.ctrlKey || event?.metaKey)) emit("open-in-new-tab", row);
++  else emit("row-click", row);
++};
++
++const onRowAuxclick = (row: any) => {
++  if (props.rowHref) emit("open-in-new-tab", row);
++};
++
++// Modified/non-primary clicks fall through so the browser opens its own tab.
++const onRowLinkClick = (event: MouseEvent, row: any) => {
++  if (!props.rowHref) return;
++  if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)
++    return;
++  event.preventDefault();
++  emit("row-click", row);
++};
++
+ const sendToAiChat = (value: string) => emit("send-to-ai-chat", value);
+ 
+ // ── Right-click cell actions ──────────────────────────────────────────────

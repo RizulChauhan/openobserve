@@ -1,0 +1,22 @@
+{
+  "feature_slug": "open-trace-new-tab",
+  "feature_title": "Traces Open Result in New Tab",
+  "area": "Traces",
+  "edition": "oss",
+  "needs_e2e": true,
+  "needs_api": false,
+  "spec_filename": "traces-15477-open-trace-new-tab.spec.js",
+  "spec_path": "tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-15477-open-trace-new-tab.spec.js",
+  "playwright_group": "Traces-Regression",
+  "source_files": [
+    "web/src/plugins/traces/SearchResult.vue",
+    "web/src/plugins/traces/components/TracesSearchResultList.vue",
+    "web/src/lib/core/Table/sub-components/OTableBodyRow.vue",
+    "web/src/lib/core/Table/OTable.vue",
+    "web/src/lib/core/Table/sub-components/OTableBody.vue",
+    "web/src/lib/core/Table/OTable.types.ts"
+  ],
+  "existing_tests_in_diff": true,
+  "skip": false,
+  "skip_reason": ""
+}

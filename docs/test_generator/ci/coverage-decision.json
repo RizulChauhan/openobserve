@@ -1,0 +1,11 @@
+{
+  "action": "append",
+  "target_spec": "tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-15477-open-trace-new-tab.spec.js",
+  "existing_tests_considered": [
+    "tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-15477-open-trace-new-tab.spec.js",
+    "tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-regression.spec.js",
+    "tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-share-url.spec.js"
+  ],
+  "needs_registration": false,
+  "rationale": "The dev's diff already ships traces-15477-open-trace-new-tab.spec.js (registered in ci_matrix_regression.json under Traces-Regression) with 3 e2e tests covering: (1) operation-name cell is a real <a href> to trace details, (2) ctrl/cmd-click on the link + middle-click on a non-link cell open a new tab and keep the list, and (3) plain left-click opens in the same tab. Unit coverage (SearchResult.spec.ts, TracesSearchResultList.spec.ts, OTableBodyRow.spec.ts) covers the rest of the event chain. The ONLY WIRED behavior not exercised by an e2e test is the right-click context-menu 'Open in New Tab' item (TracesSearchResultList.vue:210-217 -> SearchResult.vue openTraceInNewTab). That is one additional test() in the already-registered spec, so action=append and needs_registration=false."
+}
