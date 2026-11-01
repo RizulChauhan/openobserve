@@ -13651,7 +13651,12 @@
           "colP90": "p90",
           "colP99": "p99",
           "addToDashboard": "ダッシュボードに追加",
-          "panelTitle": "{title} · {metric}"
+          "panelTitle": "{title} · {metric}",
+          "sortAvg": "平均",
+          "sortAvgTitle": "ウィンドウ内の平均値で値を順位付け",
+          "sortOutlying": "外れ値",
+          "sortOutlyingTitle": "値の時系列が他の時系列からどれだけ外れているかで順位付け",
+          "outlier": "外れ値"
         },
         "related": {
           "empty": "関連するメトリクスはありません",
@@ -13685,6 +13690,15 @@
       "allTitle": "この範囲にデータがないものも含むすべてのメトリクス",
       "sortAsc": "A–Z",
       "sortDesc": "Z–A",
+      "sortDashboards": "ダッシュボード",
+      "sortDashboardsTitle": "ダッシュボードでの使用が多い順",
+      "sortAlerts": "アラート",
+      "sortAlertsTitle": "アラートでの使用が多い順",
+      "usageInDashboards": "ダッシュボード内",
+      "usageHasAlerts": "アラートあり",
+      "usageInSlos": "SLOs 内",
+      "usageLoading": "メトリクスの使用箇所を読み込み中",
+      "usageFailed": "使用状況を取得できません。再試行してください",
       "viewGrid": "グリッド",
       "viewRows": "行",
       "modeExplore": "探索",
@@ -13776,9 +13790,9 @@
         "selectLabel": "ラベルを選択",
         "invalidLabel": "無効なラベル名。",
         "selectOrTypeValue": "値を選択または入力",
-        "operatorHelp": "=  はこの値と完全一致\n!=  はこの値以外のすべて\n=~  は正規表現と一致 — 500{'|'}503 のいずれかに一致させるにはこれを使用\n!~  は正規表現と不一致\n\nフィルターはANDで結合されます。2つの値のいずれかに一致させるには、=~ 演算子を正規表現と共に使用します。",
+        "operatorHelp": "=  はこの値と完全に一致\n!=  はこの値以外\n=~  は正規表現に一致 — 500{'|'}503 のように指定するとどちらかに一致\n!~  は正規表現に一致しない\n\nフィルターは AND で結合されます。2 つの値のいずれかに一致させるには、正規表現を指定した =~ を使うか、OR グループを追加してください。",
         "andSeparator": "および",
-        "andSeparatorTitle": "フィルターはANDで結合されます — メトリクスはすべてのフィルターに一致する必要があります。2つの値のいずれかに一致させるには、=~ 演算子を正規表現と共に使用します。",
+        "andSeparatorTitle": "フィルターは AND で結合されます — メトリクスはすべてに一致する必要があります。2 つの値のいずれかに一致させるには、正規表現を指定した =~ 演算子を使うか、OR グループを追加してください。",
         "noSuggestions": "候補なし — 値を入力してください。",
         "moreFilters": "+{count} 件以上",
         "moreFiltersTooltip": "クリックですべてのフィルターをインライン表示",
@@ -13846,14 +13860,23 @@
       "regexPattern": "正規表現パターン（例: prod.*）",
       "regexNotMatching": "正規表現不一致（例: test.*）"
     },
+    "labelGroups": {
+      "addGroup": "+ OR グループ",
+      "addGroupTooltip": "フィルターのグループを追加します。時系列はいずれかのグループに一致すれば一致とみなされます",
+      "addToGroup": "このグループにフィルターを追加",
+      "anyOf": "いずれか",
+      "andAnyOf": "かついずれか",
+      "or": "または",
+      "not": "否定",
+      "notTooltip": "このグループ全体が一致しない時系列を一致対象にします",
+      "tooManyBranches": "これらのフィルターは {count} 個の個別セレクターに展開されます。実行できるのは最大 {max} 個までです。値を 1 つの正規表現フィルターにまとめるか、グループを削除してください。"
+    },
     "builderSwitch": {
       "unsupported": "ビルダーは{construct}を表示できません",
       "twoMetrics": "ビルダーは2つのメトリクス間の演算を表示できません — 数式を使用してください",
       "noMetric": "ビルダーには1つの名前付きメトリクスに対するクエリが必要です",
       "mismatch": "ビルダーはこのクエリを正確に表示できません",
       "constructs": {
-        "without": "without (…) グルーピング",
-        "offset": "オフセット修飾子",
         "at": "{'@'} 修飾子",
         "orMatchers": "ラベルマッチャー間の or",
         "subquery": "サブクエリ",
@@ -13887,6 +13910,10 @@
         "byLabelsLabel": "ラベル別",
         "quantileLabel": "分位数",
         "kLabel": "K",
+        "withoutLabel": "Without（これらのラベルを削除）",
+        "withoutDesc": "選択したラベルを集約で除外し、それ以外のラベルをすべて保持します",
+        "offsetLabel": "オフセット",
+        "offsetDesc": "メトリクスをどれだけ過去まで読み取るか（例: 1h または 1d）",
         "nearestMultipleLabel": "最も近い倍数"
       },
       "rangeOnlyFirst": "範囲関数は最初のステップにのみ使用できます",
@@ -15152,6 +15179,10 @@
     "reviewAndApplyFilters": "フィルターを確認してトレースに適用",
     "spansLabel": "スパン",
     "errorsLabel": "エラー",
+    "errorStrip": {
+      "spanLabel": "{service} · {operation}",
+      "menuTitle": "エラースパン（深い順）"
+    },
     "previousMatch": "前の試合",
     "nextMatch": "次の試合",
     "searchInSpans": "スパン内を検索",
@@ -15401,6 +15432,22 @@
       "roleAssistant": "アシスタント",
       "roleSystem": "システム",
       "roleTool": "ツール"
+    },
+    "results": {
+      "tracesWithMatchingSpan": "{count} 件の一致するスパンを含むトレース | {count} 件の一致するスパンを含むトレース",
+      "spansColumnTooltip": "トレース内のスパン総数",
+      "fieldValueCountsCaption": "カウントは、現在の範囲内でこの値を持つスパン数です",
+      "errorColumn": "エラー",
+      "eventsColumn": "イベント",
+      "eventExceptions": "{count} 件の例外 | {count} 件の例外",
+      "eventLogs": "{count} 件のログ | {count} 件のログ",
+      "eventCounts": "{exceptions} · {logs}",
+      "eventsHoverTitle": "{operation} のイベント",
+      "eventsHoverOrder": "{count}、時刻順",
+      "eventKindException": "例外",
+      "eventKindLog": "ログ",
+      "eventOffset": "+{offset}",
+      "moreEvents": "+{count} 件"
     },
     "tableColumns": {
       "service": "サービス",
@@ -22599,6 +22646,7 @@
   },
   "promql": {
     "operations": {
+      "offsetDoc": "指定した期間前の時点のメトリクスを読み取ります",
       "rateDoc": "指定された時間範囲における1秒あたりの平均増加率を計算します",
       "irateDoc": "最後の2つのデータポイントに基づいて1秒あたりの瞬間増加率を計算します",
       "increaseDoc": "指定された時間範囲における合計増加量を計算します",

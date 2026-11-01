@@ -13651,7 +13651,12 @@
           "colP90": "p90",
           "colP99": "p99",
           "addToDashboard": "Dodaj do pulpitu",
-          "panelTitle": "{title} · {metric}"
+          "panelTitle": "{title} · {metric}",
+          "sortAvg": "Średnia",
+          "sortAvgTitle": "Uszereguj wartości według ich średniej w oknie",
+          "sortOutlying": "Odstające",
+          "sortOutlyingTitle": "Uszereguj wartości według tego, jak bardzo ich serie odbiegają od pozostałych",
+          "outlier": "Wartość odstająca"
         },
         "related": {
           "empty": "Brak powiązanych metryk",
@@ -13685,6 +13690,15 @@
       "allTitle": "Każda metryka, także te bez danych w tym zakresie",
       "sortAsc": "A–Z",
       "sortDesc": "Z–A",
+      "sortDashboards": "Pulpity",
+      "sortDashboardsTitle": "Najpierw najczęściej używane w pulpitach",
+      "sortAlerts": "Alerty",
+      "sortAlertsTitle": "Najpierw najczęściej używane w alertach",
+      "usageInDashboards": "W pulpitach",
+      "usageHasAlerts": "Ma alerty",
+      "usageInSlos": "W SLO",
+      "usageLoading": "Ładowanie informacji o użyciu metryk",
+      "usageFailed": "Użycie niedostępne, spróbuj ponownie",
       "viewGrid": "Siatka",
       "viewRows": "Wiersze",
       "modeExplore": "Eksploruj",
@@ -13776,9 +13790,9 @@
         "selectLabel": "Wybierz etykietę",
         "invalidLabel": "Nieprawidłowa nazwa etykiety.",
         "selectOrTypeValue": "Wybierz lub wpisz wartość",
-        "operatorHelp": "=  to dokładnie ta wartość\n!=  to wszystko oprócz tej wartości\n=~  dopasowuje wyrażenie regularne — użyj 500{'|'}503, aby dopasować jedno z dwóch\n!~  nie pasuje do wyrażenia regularnego\n\nFiltry są łączone za pomocą AND. Aby dopasować jedną z dwóch wartości, użyj operatora =~ z wyrażeniem regularnym.",
+        "operatorHelp": "=  oznacza dokładnie tę wartość\n!=  oznacza wszystko inne niż ta wartość\n=~  dopasowuje wyrażenie regularne — użyj 500{'|'}503, aby dopasować którąkolwiek\n!~  nie dopasowuje wyrażenia regularnego\n\nFiltry są łączone operatorem AND. Aby dopasować jedną z dwóch wartości, użyj =~ z wyrażeniem regularnym lub dodaj grupę OR.",
         "andSeparator": "i",
-        "andSeparatorTitle": "Filtry są łączone za pomocą AND — metryka musi pasować do wszystkich. Aby dopasować jedną z dwóch wartości, użyj operatora =~ z wyrażeniem regularnym.",
+        "andSeparatorTitle": "Filtry są łączone operatorem AND — metryka musi pasować do wszystkich. Aby dopasować jedną z dwóch wartości, użyj operatora =~ z wyrażeniem regularnym lub dodaj grupę OR.",
         "noSuggestions": "Brak sugestii — wpisz wartość.",
         "moreFilters": "+{count} więcej",
         "moreFiltersTooltip": "Kliknij, aby pokazać wszystkie filtry w linii",
@@ -13846,14 +13860,23 @@
       "regexPattern": "Wzorzec regex (np. prod.*)",
       "regexNotMatching": "Regex niepasujący (np. test.*)"
     },
+    "labelGroups": {
+      "addGroup": "+ Grupa OR",
+      "addGroupTooltip": "Dodaj grupę filtrów; seria pasuje, gdy pasuje do dowolnej grupy",
+      "addToGroup": "Dodaj filtr do tej grupy",
+      "anyOf": "dowolny z",
+      "andAnyOf": "i dowolny z",
+      "or": "lub",
+      "not": "nie",
+      "notTooltip": "Dopasuj serie, których nie obejmuje ta cała grupa",
+      "tooManyBranches": "Te filtry rozwijają się do {count} osobnych selektorów; może działać co najwyżej {max}. Scal wartości w jeden filtr wyrażenia regularnego lub usuń grupę."
+    },
     "builderSwitch": {
       "unsupported": "Kreator nie może wyświetlić {construct}",
       "twoMetrics": "Kreator nie może wyświetlić operacji między dwiema metrykami — użyj formuły",
       "noMetric": "Kreator wymaga zapytania dotyczącego jednej nazwanej metryki",
       "mismatch": "Kreator nie może dokładnie wyświetlić tego zapytania",
       "constructs": {
-        "without": "grupowanie without (…)",
-        "offset": "modyfikator offset",
         "at": "modyfikator {'@'}",
         "orMatchers": "or pomiędzy dopasowaniami etykiet",
         "subquery": "podzapytanie",
@@ -13887,6 +13910,10 @@
         "byLabelsLabel": "Według etykiet",
         "quantileLabel": "Kwantyl",
         "kLabel": "K",
+        "withoutLabel": "Bez (usuń te etykiety)",
+        "withoutDesc": "Agreguj z pominięciem wybranych etykiet i zachowaj wszystkie pozostałe etykiety",
+        "offsetLabel": "Przesunięcie",
+        "offsetDesc": "Jak daleko wstecz odczytać metrykę, np. 1h lub 1d",
         "nearestMultipleLabel": "Najbliższa wielokrotność"
       },
       "rangeOnlyFirst": "Funkcja zakresowa może być tylko pierwszym krokiem",
@@ -15152,6 +15179,10 @@
     "reviewAndApplyFilters": "Przejrzyj i zastosuj filtry do trace",
     "spansLabel": "spany",
     "errorsLabel": "błędy",
+    "errorStrip": {
+      "spanLabel": "{service} · {operation}",
+      "menuTitle": "Spany błędów, najgłębsze najpierw"
+    },
     "previousMatch": "Poprzednie dopasowanie",
     "nextMatch": "Następne dopasowanie",
     "searchInSpans": "Szukaj w spanach",
@@ -15401,6 +15432,22 @@
       "roleAssistant": "Asystent",
       "roleSystem": "System",
       "roleTool": "Narzędzie"
+    },
+    "results": {
+      "tracesWithMatchingSpan": "{count} trace z pasującym spanem | {count} trace z pasującymi spanami",
+      "spansColumnTooltip": "Łączna liczba spanów w trace",
+      "fieldValueCountsCaption": "Liczby oznaczają spany z tą wartością w bieżącym zakresie",
+      "errorColumn": "Błąd",
+      "eventsColumn": "Zdarzenia",
+      "eventExceptions": "{count} wyjątek | {count} wyjątków",
+      "eventLogs": "{count} log | {count} logów",
+      "eventCounts": "{exceptions} · {logs}",
+      "eventsHoverTitle": "Zdarzenia dla {operation}",
+      "eventsHoverOrder": "{count}, w kolejności czasowej",
+      "eventKindException": "wyjątek",
+      "eventKindLog": "log",
+      "eventOffset": "+{offset}",
+      "moreEvents": "+{count} więcej"
     },
     "tableColumns": {
       "service": "Usługa",
@@ -22599,6 +22646,7 @@
   },
   "promql": {
     "operations": {
+      "offsetDoc": "Odczytuje metrykę sprzed podanego czasu",
       "rateDoc": "Oblicza średnią szybkość wzrostu na sekundę w określonym zakresie czasu",
       "irateDoc": "Oblicza chwilową szybkość wzrostu na sekundę na podstawie dwóch ostatnich punktów danych",
       "increaseDoc": "Oblicza całkowity wzrost w określonym zakresie czasu",

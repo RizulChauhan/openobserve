@@ -13651,7 +13651,12 @@
           "colP90": "p90",
           "colP99": "p99",
           "addToDashboard": "Gösterge panosuna ekle",
-          "panelTitle": "{title} · {metric}"
+          "panelTitle": "{title} · {metric}",
+          "sortAvg": "Ortalama",
+          "sortAvgTitle": "Değerleri pencere boyunca ortalamalarına göre sırala",
+          "sortOutlying": "Aykırı",
+          "sortOutlyingTitle": "Değerleri, serilerinin diğerlerinden ne kadar saptığına göre sırala",
+          "outlier": "Aykırı değer"
         },
         "related": {
           "empty": "İlgili metrik yok",
@@ -13685,6 +13690,15 @@
       "allTitle": "Bu aralıkta verisi olmayanlar dahil her metrik",
       "sortAsc": "A–Z",
       "sortDesc": "Z–A",
+      "sortDashboards": "Gösterge panoları",
+      "sortDashboardsTitle": "Gösterge panolarında en çok kullanılanlar önce",
+      "sortAlerts": "Uyarılar",
+      "sortAlertsTitle": "Uyarılarda en çok kullanılanlar önce",
+      "usageInDashboards": "Gösterge panolarında",
+      "usageHasAlerts": "Uyarıları var",
+      "usageInSlos": "SLO'larda",
+      "usageLoading": "Metriklerin kullanıldığı yerler yükleniyor",
+      "usageFailed": "Kullanım bilgisi kullanılamıyor, yeniden deneyin",
       "viewGrid": "Izgara",
       "viewRows": "Satırlar",
       "modeExplore": "Keşfet",
@@ -13776,9 +13790,9 @@
         "selectLabel": "Bir etiket seçin",
         "invalidLabel": "Geçersiz etiket adı.",
         "selectOrTypeValue": "Bir değer seçin veya yazın",
-        "operatorHelp": "=  tam olarak bu değer\n!=  bu değer dışındaki her şey\n=~  bir regex ile eşleşir — 500{'|'}503 ile ikisini de eşleştirin\n!~  bir regex ile eşleşmez\n\nFiltreler VE ile birleştirilir. İki değerden birini eşleştirmek için =~ operatörünü bir regex ile kullanın.",
+        "operatorHelp": "=  tam olarak bu değer\n!=  bu değer dışındaki her şey\n=~  bir regex ile eşleşir — ikisinden biriyle eşleşmek için 500{'|'}503 kullanın\n!~  bir regex ile eşleşmez\n\nFiltreler AND ile birleştirilir. İki değerden biriyle eşleşmek için bir regex ile =~ kullanın veya bir OR grubu ekleyin.",
         "andSeparator": "ve",
-        "andSeparatorTitle": "Filtreler VE ile birleştirilir — bir metrik tümünü eşleştirmelidir. İki değerden birini eşleştirmek için =~ operatörünü bir regex ile kullanın.",
+        "andSeparatorTitle": "Filtreler AND ile birleştirilir — bir metrik bunların tümüyle eşleşmelidir. İki değerden biriyle eşleşmek için bir regex ile =~ operatörünü kullanın veya bir OR grubu ekleyin.",
         "noSuggestions": "Öneri yok — bir değer yazın.",
         "moreFilters": "+{count} daha",
         "moreFiltersTooltip": "Tüm filtreleri satır içinde göstermek için tıklayın",
@@ -13846,14 +13860,23 @@
       "regexPattern": "Regex deseni (örn. prod.*)",
       "regexNotMatching": "Regex eşleşmiyor (örn. test.*)"
     },
+    "labelGroups": {
+      "addGroup": "+ OR grubu",
+      "addGroupTooltip": "Bir filtre grubu ekleyin; bir seri, gruplardan herhangi biriyle eşleştiğinde eşleşir.",
+      "addToGroup": "Bu gruba filtre ekle",
+      "anyOf": "herhangi biri",
+      "andAnyOf": "ve herhangi biri",
+      "or": "veya",
+      "not": "değil",
+      "notTooltip": "Bu grubun tamamının eşleşmediği serilerle eşleş",
+      "tooManyBranches": "Bu filtreler {count} ayrı seçiciye genişler; en fazla {max} tanesi çalıştırılabilir. Değerleri tek bir regex filtresinde birleştirin veya bir grubu kaldırın."
+    },
     "builderSwitch": {
       "unsupported": "Oluşturucu {construct} yapısını gösteremiyor",
       "twoMetrics": "Oluşturucu iki metrik arasındaki bir işlemi gösteremiyor — bir formül kullanın",
       "noMetric": "Oluşturucu, adlandırılmış tek bir metrik üzerinde sorgu gerektirir",
       "mismatch": "Oluşturucu bu sorguyu tam olarak gösteremiyor",
       "constructs": {
-        "without": "bir without (…) gruplaması",
-        "offset": "bir offset değiştiricisi",
         "at": "bir {'@'} değiştiricisi",
         "orMatchers": "etiket eşleştiricileri arasında bir veya",
         "subquery": "bir alt sorgu",
@@ -13887,6 +13910,10 @@
         "byLabelsLabel": "Etiketlere Göre",
         "quantileLabel": "Kantil",
         "kLabel": "K",
+        "withoutLabel": "Hariç (bu etiketleri kaldır)",
+        "withoutDesc": "Seçilen etiketleri toplulaştırarak kaldırın ve diğer tüm etiketleri koruyun",
+        "offsetLabel": "Ofset",
+        "offsetDesc": "Metriğin ne kadar geriye dönük okunacağı, örn. 1h veya 1d",
         "nearestMultipleLabel": "En yakın kat"
       },
       "rangeOnlyFirst": "Bir aralık fonksiyonu yalnızca ilk adım olabilir",
@@ -15152,6 +15179,10 @@
     "reviewAndApplyFilters": "Filtreleri gözden geçir ve İzlere uygula",
     "spansLabel": "spanlar",
     "errorsLabel": "hatalar",
+    "errorStrip": {
+      "spanLabel": "{service} · {operation}",
+      "menuTitle": "Hata span'leri, en derinden başlayarak"
+    },
     "previousMatch": "Önceki eşleşme",
     "nextMatch": "Sonraki eşleşme",
     "searchInSpans": "Spanlarda ara",
@@ -15401,6 +15432,22 @@
       "roleAssistant": "Asistan",
       "roleSystem": "Sistem",
       "roleTool": "Araç"
+    },
+    "results": {
+      "tracesWithMatchingSpan": "{count} eşleşen span içeren iz | {count} eşleşen span içeren iz",
+      "spansColumnTooltip": "İzdeki toplam span sayısı",
+      "fieldValueCountsCaption": "Sayımlar, geçerli aralıkta bu değere sahip span'lerin sayısıdır.",
+      "errorColumn": "Hata",
+      "eventsColumn": "Olaylar",
+      "eventExceptions": "{count} istisna | {count} istisna",
+      "eventLogs": "{count} günlük | {count} günlük",
+      "eventCounts": "{exceptions} · {logs}",
+      "eventsHoverTitle": "{operation} üzerindeki olaylar",
+      "eventsHoverOrder": "{count}, zaman sırasına göre",
+      "eventKindException": "istisna",
+      "eventKindLog": "günlük",
+      "eventOffset": "+{offset}",
+      "moreEvents": "+{count} tane daha"
     },
     "tableColumns": {
       "service": "Hizmet",
@@ -22599,6 +22646,7 @@
   },
   "promql": {
     "operations": {
+      "offsetDoc": "Metriği belirtilen süre önceki haliyle okur",
       "rateDoc": "Belirtilen zaman aralığında saniye başına ortalama artış hızını hesaplar",
       "irateDoc": "Son iki veri noktasına dayanarak saniye başına anlık artış hızını hesaplar",
       "increaseDoc": "Belirtilen zaman aralığındaki toplam artışı hesaplar",

@@ -13651,7 +13651,12 @@
           "colP90": "p90",
           "colP99": "p99",
           "addToDashboard": "대시보드에 추가",
-          "panelTitle": "{title} · {metric}"
+          "panelTitle": "{title} · {metric}",
+          "sortAvg": "평균",
+          "sortAvgTitle": "윈도우 전체 평균으로 값 순위 지정",
+          "sortOutlying": "이상치 기준",
+          "sortOutlyingTitle": "다른 시리즈에서 얼마나 벗어났는지로 값 순위 지정",
+          "outlier": "이상치"
         },
         "related": {
           "empty": "관련 메트릭 없음",
@@ -13685,6 +13690,15 @@
       "allTitle": "이 범위에 데이터가 없는 메트릭을 포함한 모든 메트릭",
       "sortAsc": "A–Z",
       "sortDesc": "Z–A",
+      "sortDashboards": "대시보드",
+      "sortDashboardsTitle": "대시보드에서 가장 많이 사용된 순",
+      "sortAlerts": "알림",
+      "sortAlertsTitle": "알림에서 가장 많이 사용된 순",
+      "usageInDashboards": "대시보드에서 사용",
+      "usageHasAlerts": "알림 있음",
+      "usageInSlos": "SLO에서 사용",
+      "usageLoading": "메트릭 사용 위치를 불러오는 중",
+      "usageFailed": "사용 정보를 사용할 수 없음, 다시 시도",
       "viewGrid": "그리드",
       "viewRows": "행",
       "modeExplore": "탐색",
@@ -13776,9 +13790,9 @@
         "selectLabel": "레이블 선택",
         "invalidLabel": "잘못된 레이블 이름입니다.",
         "selectOrTypeValue": "값 선택 또는 입력",
-        "operatorHelp": "=  정확히 이 값\n!=  이 값이 아닌 모든 값\n=~  정규식 일치 — 500{'|'}503을 사용하여 둘 중 하나 일치\n!~  정규식 불일치\n\n필터는 AND로 결합됩니다. 두 값 중 하나를 일치시키려면 =~ 연산자를 정규식과 함께 사용하세요.",
+        "operatorHelp": "=  이 값과 정확히 일치\n!=  이 값이 아닌 모든 값\n=~  정규식과 일치 — 둘 중 하나를 일치시키려면 500{'|'}503을 사용하세요\n!~  정규식과 일치하지 않음\n\n필터는 AND로 결합됩니다. 두 값 중 하나를 일치시키려면 정규식과 함께 =~를 사용하거나 OR 그룹을 추가하세요.",
         "andSeparator": "및",
-        "andSeparatorTitle": "필터는 AND로 결합됩니다. — 메트릭은 모든 필터와 일치해야 합니다. 두 값 중 하나를 일치시키려면 =~ 연산자를 정규식과 함께 사용하세요.",
+        "andSeparatorTitle": "필터는 AND로 결합됩니다 — 메트릭은 모든 필터와 일치해야 합니다. 두 값 중 하나를 일치시키려면 정규식과 함께 =~ 연산자를 사용하거나 OR 그룹을 추가하세요.",
         "noSuggestions": "제안 없음 — 값을 입력하세요.",
         "moreFilters": "+{count}개 더",
         "moreFiltersTooltip": "클릭하여 모든 필터를 인라인으로 표시",
@@ -13846,14 +13860,23 @@
       "regexPattern": "정규식 패턴 (예: prod.*)",
       "regexNotMatching": "정규식 불일치 (예: test.*)"
     },
+    "labelGroups": {
+      "addGroup": "+ OR 그룹",
+      "addGroupTooltip": "필터 그룹을 추가합니다. 시리즈는 그룹 중 하나라도 일치하면 일치합니다",
+      "addToGroup": "이 그룹에 필터 추가",
+      "anyOf": "다음 중 하나",
+      "andAnyOf": "그리고 다음 중 하나",
+      "or": "또는",
+      "not": "아님",
+      "notTooltip": "이 그룹 전체와 일치하지 않는 시리즈를 일치시킵니다",
+      "tooManyBranches": "이 필터는 {count}개의 개별 선택자로 확장됩니다. 최대 {max}개만 실행할 수 있습니다. 값을 하나의 정규식 필터로 병합하거나 그룹을 제거하세요."
+    },
     "builderSwitch": {
       "unsupported": "빌더에서 {construct}을(를) 표시할 수 없습니다",
       "twoMetrics": "빌더에서는 두 메트릭 간의 연산을 표시할 수 없습니다 — 수식을 사용하세요",
       "noMetric": "빌더에는 이름이 지정된 메트릭 하나에 대한 쿼리가 필요합니다",
       "mismatch": "빌더에서 이 쿼리를 정확히 표시할 수 없습니다",
       "constructs": {
-        "without": "without (…) 그룹화",
-        "offset": "오프셋 수정자",
         "at": "{'@'} 수정자",
         "orMatchers": "레이블 매처 사이의 or",
         "subquery": "서브쿼리",
@@ -13887,6 +13910,10 @@
         "byLabelsLabel": "레이블별",
         "quantileLabel": "분위수",
         "kLabel": "K",
+        "withoutLabel": "제외 (이 레이블 제거)",
+        "withoutDesc": "선택한 레이블을 집계에서 제외하고 나머지 레이블은 모두 유지합니다",
+        "offsetLabel": "오프셋",
+        "offsetDesc": "메트릭을 얼마나 이전 시점까지 읽을지, 예: 1h 또는 1d",
         "nearestMultipleLabel": "가장 가까운 배수"
       },
       "rangeOnlyFirst": "범위 함수는 첫 번째 단계에만 올 수 있습니다",
@@ -15152,6 +15179,10 @@
     "reviewAndApplyFilters": "트레이스에 필터 검토 및 적용",
     "spansLabel": "스팬",
     "errorsLabel": "오류",
+    "errorStrip": {
+      "spanLabel": "{service} · {operation}",
+      "menuTitle": "오류 스팬, 깊은 것부터"
+    },
     "previousMatch": "이전 일치 항목",
     "nextMatch": "다음 일치 항목",
     "searchInSpans": "스팬에서 검색",
@@ -15401,6 +15432,22 @@
       "roleAssistant": "어시스턴트",
       "roleSystem": "시스템",
       "roleTool": "도구"
+    },
+    "results": {
+      "tracesWithMatchingSpan": "{count}개의 일치하는 스팬이 있는 트레이스 | {count}개의 일치하는 스팬이 있는 트레이스",
+      "spansColumnTooltip": "트레이스 내 총 스팬 수",
+      "fieldValueCountsCaption": "개수는 현재 범위에서 이 값을 가진 스팬 수입니다",
+      "errorColumn": "오류",
+      "eventsColumn": "이벤트",
+      "eventExceptions": "{count}개 예외 | {count}개 예외",
+      "eventLogs": "{count}개 로그 | {count}개 로그",
+      "eventCounts": "{exceptions} · {logs}",
+      "eventsHoverTitle": "{operation}의 이벤트",
+      "eventsHoverOrder": "{count}개, 시간 순",
+      "eventKindException": "예외",
+      "eventKindLog": "로그",
+      "eventOffset": "+{offset}",
+      "moreEvents": "+{count}개 더"
     },
     "tableColumns": {
       "service": "서비스",
@@ -22599,6 +22646,7 @@
   },
   "promql": {
     "operations": {
+      "offsetDoc": "지정된 기간 전 시점의 메트릭을 읽습니다",
       "rateDoc": "지정된 시간 범위에 대한 초당 평균 증가율을 계산합니다",
       "irateDoc": "마지막 두 데이터 포인트를 기반으로 초당 순간 증가율을 계산합니다",
       "increaseDoc": "지정된 시간 범위에 대한 총 증가량을 계산합니다",

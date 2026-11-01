@@ -13651,7 +13651,12 @@
           "colP90": "p90",
           "colP99": "p99",
           "addToDashboard": "Adicionar ao dashboard",
-          "panelTitle": "{title} · {metric}"
+          "panelTitle": "{title} · {metric}",
+          "sortAvg": "Média",
+          "sortAvgTitle": "Ordenar valores pela sua média na janela",
+          "sortOutlying": "Atípicos",
+          "sortOutlyingTitle": "Ordenar valores pelo afastamento da respetiva série em relação às outras",
+          "outlier": "Valor atípico"
         },
         "related": {
           "empty": "Nenhuma métrica relacionada",
@@ -13685,6 +13690,15 @@
       "allTitle": "Todas as métricas, incluindo aquelas sem dados neste intervalo",
       "sortAsc": "A–Z",
       "sortDesc": "Z–A",
+      "sortDashboards": "Dashboards",
+      "sortDashboardsTitle": "Mais utilizados em dashboards primeiro",
+      "sortAlerts": "Alertas",
+      "sortAlertsTitle": "Mais utilizados em alertas primeiro",
+      "usageInDashboards": "Em dashboards",
+      "usageHasAlerts": "Tem alertas",
+      "usageInSlos": "Em SLOs",
+      "usageLoading": "A carregar onde as métricas são utilizadas",
+      "usageFailed": "Utilização indisponível, tente novamente",
       "viewGrid": "Grelha",
       "viewRows": "Linhas",
       "modeExplore": "Explorar",
@@ -13776,9 +13790,9 @@
         "selectLabel": "Selecione um rótulo",
         "invalidLabel": "Nome de rótulo inválido.",
         "selectOrTypeValue": "Selecione ou introduza um valor",
-        "operatorHelp": "=  é exatamente este valor\n!=  é qualquer coisa menos este valor\n=~  corresponde a uma regex — use 500{'|'}503 para corresponder a um ou outro\n!~  não corresponde a uma regex\n\nOs filtros são combinados com AND. Para corresponder a um de dois valores, use =~ com uma regex.",
+        "operatorHelp": "=  é exatamente este valor\n!=  é qualquer valor exceto este valor\n=~  corresponde a uma expressão regular — use 500{'|'}503 para corresponder a qualquer um\n!~  não corresponde a uma expressão regular\n\nOs filtros são combinados com AND. Para corresponder a qualquer um de dois valores, use =~ com uma expressão regular ou adicione um grupo OR.",
         "andSeparator": "e",
-        "andSeparatorTitle": "Os filtros são combinados com AND — uma métrica deve corresponder a todos eles. Para corresponder a um de dois valores, use o operador =~ com uma regex.",
+        "andSeparatorTitle": "Os filtros são combinados com AND — uma métrica tem de corresponder a todos eles. Para corresponder a qualquer um de dois valores, use o operador =~ com uma expressão regular ou adicione um grupo OR.",
         "noSuggestions": "Nenhuma sugestão — introduza um valor.",
         "moreFilters": "+{count} mais",
         "moreFiltersTooltip": "Clique para mostrar todos os filtros inline",
@@ -13846,14 +13860,23 @@
       "regexPattern": "Padrão regex (ex.: prod.*)",
       "regexNotMatching": "Regex não correspondente (ex.: test.*)"
     },
+    "labelGroups": {
+      "addGroup": "+ grupo OR",
+      "addGroupTooltip": "Adicionar um grupo de filtros; uma série corresponde quando corresponde a qualquer um dos grupos",
+      "addToGroup": "Adicionar um filtro a este grupo",
+      "anyOf": "qualquer um de",
+      "andAnyOf": "e qualquer um de",
+      "or": "ou",
+      "not": "não",
+      "notTooltip": "Corresponder às séries a que este grupo, no seu todo, não corresponde",
+      "tooManyBranches": "Estes filtros expandem-se para {count} seletores separados; no máximo {max} podem ser executados. Combine os valores num único filtro de expressão regular ou remova um grupo."
+    },
     "builderSwitch": {
       "unsupported": "O construtor não pode exibir {construct}",
       "twoMetrics": "O construtor não pode exibir uma operação entre duas métricas — use uma fórmula",
       "noMetric": "O construtor precisa de uma consulta sobre uma única métrica nomeada",
       "mismatch": "O construtor não pode exibir esta consulta exatamente",
       "constructs": {
-        "without": "um agrupamento without (…)",
-        "offset": "um modificador de offset",
         "at": "um modificador {'@'}",
         "orMatchers": "um or entre correspondências de rótulos",
         "subquery": "uma subconsulta",
@@ -13887,6 +13910,10 @@
         "byLabelsLabel": "Por Rótulos",
         "quantileLabel": "Quantil",
         "kLabel": "K",
+        "withoutLabel": "Sem (remover estas etiquetas)",
+        "withoutDesc": "Agregar excluindo as etiquetas selecionadas e manter todas as restantes etiquetas",
+        "offsetLabel": "Deslocamento",
+        "offsetDesc": "Quanto recuar para ler a métrica, por exemplo 1h ou 1d",
         "nearestMultipleLabel": "Múltiplo mais próximo"
       },
       "rangeOnlyFirst": "Uma função de intervalo só pode ser a primeira etapa",
@@ -15152,6 +15179,10 @@
     "reviewAndApplyFilters": "Rever e aplicar filtros aos Traces",
     "spansLabel": "spans",
     "errorsLabel": "erros",
+    "errorStrip": {
+      "spanLabel": "{service} · {operation}",
+      "menuTitle": "Spans com erro, mais profundos primeiro"
+    },
     "previousMatch": "Correspondência anterior",
     "nextMatch": "Próxima correspondência",
     "searchInSpans": "Pesquisar em spans",
@@ -15401,6 +15432,22 @@
       "roleAssistant": "Assistente",
       "roleSystem": "Sistema",
       "roleTool": "Ferramenta"
+    },
+    "results": {
+      "tracesWithMatchingSpan": "{count} trace com um span correspondente | {count} traces com um span correspondente",
+      "spansColumnTooltip": "Total de spans no trace",
+      "fieldValueCountsCaption": "As contagens são spans com este valor, no intervalo atual",
+      "errorColumn": "Erro",
+      "eventsColumn": "Eventos",
+      "eventExceptions": "{count} exceção | {count} exceções",
+      "eventLogs": "{count} log | {count} logs",
+      "eventCounts": "{exceptions} · {logs}",
+      "eventsHoverTitle": "Eventos em {operation}",
+      "eventsHoverOrder": "{count}, por ordem temporal",
+      "eventKindException": "exceção",
+      "eventKindLog": "log",
+      "eventOffset": "+{offset}",
+      "moreEvents": "+{count} mais"
     },
     "tableColumns": {
       "service": "Serviço",
@@ -22599,6 +22646,7 @@
   },
   "promql": {
     "operations": {
+      "offsetDoc": "Lê a métrica tal como estava há a duração indicada",
       "rateDoc": "Calcula a taxa média de aumento por segundo no intervalo de tempo especificado",
       "irateDoc": "Calcula a taxa instantânea de aumento por segundo com base nos dois últimos pontos de dados",
       "increaseDoc": "Calcula o aumento total no intervalo de tempo especificado",

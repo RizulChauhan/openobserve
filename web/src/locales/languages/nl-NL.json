@@ -13651,7 +13651,12 @@
           "colP90": "p90",
           "colP99": "p99",
           "addToDashboard": "Toevoegen aan dashboard",
-          "panelTitle": "{title} · {metric}"
+          "panelTitle": "{title} · {metric}",
+          "sortAvg": "Gemiddelde",
+          "sortAvgTitle": "Rangschik waarden op hun gemiddelde over het venster",
+          "sortOutlying": "Afwijkend",
+          "sortOutlyingTitle": "Rangschik waarden op hoe ver hun reeks van de andere afwijkt",
+          "outlier": "Uitschieter"
         },
         "related": {
           "empty": "Geen gerelateerde metrieken",
@@ -13685,6 +13690,15 @@
       "allTitle": "Elke metriek, inclusief die zonder gegevens in dit bereik",
       "sortAsc": "A–Z",
       "sortDesc": "Z–A",
+      "sortDashboards": "Dashboards",
+      "sortDashboardsTitle": "Meest gebruikt in dashboards bovenaan",
+      "sortAlerts": "Alarmen",
+      "sortAlertsTitle": "Meest gebruikt in alarmen bovenaan",
+      "usageInDashboards": "In dashboards",
+      "usageHasAlerts": "Heeft alarmen",
+      "usageInSlos": "In SLO's",
+      "usageLoading": "Laden waar metrieken worden gebruikt",
+      "usageFailed": "Gebruik niet beschikbaar, opnieuw proberen",
       "viewGrid": "Raster",
       "viewRows": "Rijen",
       "modeExplore": "Verkennen",
@@ -13776,9 +13790,9 @@
         "selectLabel": "Selecteer een label",
         "invalidLabel": "Ongeldige labelnaam.",
         "selectOrTypeValue": "Selecteer of typ een waarde",
-        "operatorHelp": "=  is precies deze waarde\n!=  is alles behalve deze waarde\n=~  komt overeen met een regex — gebruik 500{'|'}503 om een van beide te matchen\n!~  komt niet overeen met een regex\n\nFilters worden gecombineerd met EN. Om een van twee waarden te matchen, gebruik =~ met een regex.",
+        "operatorHelp": "=  is precies deze waarde\n!=  is alles behalve deze waarde\n=~  komt overeen met een regex — gebruik 500{'|'}503 om een van beide te matchen\n!~  komt niet overeen met een regex\n\nFilters worden gecombineerd met AND. Om een van twee waarden te matchen, gebruik =~ met een regex of voeg een OR-groep toe.",
         "andSeparator": "en",
-        "andSeparatorTitle": "Filters worden gecombineerd met EN — een metriek moet aan alle voldoen. Om een van twee waarden te matchen, gebruik de =~ operator met een regex.",
+        "andSeparatorTitle": "Filters worden gecombineerd met AND — een metriek moet aan allemaal voldoen. Om een van twee waarden te matchen, gebruik de operator =~ met een regex of voeg een OR-groep toe.",
         "noSuggestions": "Geen suggesties — typ een waarde.",
         "moreFilters": "+{count} meer",
         "moreFiltersTooltip": "Klik om alle filters inline te tonen",
@@ -13846,14 +13860,23 @@
       "regexPattern": "Regex patroon (bijv. prod.*)",
       "regexNotMatching": "Regex niet overeenkomend (bijv. test.*)"
     },
+    "labelGroups": {
+      "addGroup": "+ OR-groep",
+      "addGroupTooltip": "Voeg een groep filters toe; een reeks komt overeen als deze aan een van de groepen voldoet",
+      "addToGroup": "Voeg een filter toe aan deze groep",
+      "anyOf": "een van",
+      "andAnyOf": "en een van",
+      "or": "of",
+      "not": "niet",
+      "notTooltip": "Kom overeen met de reeks die niet aan deze hele groep voldoet",
+      "tooManyBranches": "Deze filters worden uitgebreid naar {count} afzonderlijke selectors; maximaal {max} kunnen worden uitgevoerd. Voeg waarden samen in één regex-filter of verwijder een groep."
+    },
     "builderSwitch": {
       "unsupported": "De builder kan {construct} niet weergeven",
       "twoMetrics": "De builder kan geen bewerking tussen twee metrieken weergeven — gebruik een formule",
       "noMetric": "De builder heeft een query nodig over één benoemde metriek",
       "mismatch": "De builder kan deze query niet exact weergeven",
       "constructs": {
-        "without": "een without (…)-groepering",
-        "offset": "een offset-modifier",
         "at": "een {'@'} modifier",
         "orMatchers": "een or tussen labelmatchers",
         "subquery": "een subquery",
@@ -13887,6 +13910,10 @@
         "byLabelsLabel": "Op labels",
         "quantileLabel": "Kwantiel",
         "kLabel": "K",
+        "withoutLabel": "Zonder (deze labels weglaten)",
+        "withoutDesc": "Aggregeer de geselecteerde labels weg en behoud alle overige labels",
+        "offsetLabel": "Offset",
+        "offsetDesc": "Hoe ver terug de metriek moet worden gelezen, bijv. 1h of 1d",
         "nearestMultipleLabel": "Dichtstbijzijnde veelvoud"
       },
       "rangeOnlyFirst": "Een range-functie kan alleen de eerste stap zijn",
@@ -15152,6 +15179,10 @@
     "reviewAndApplyFilters": "Bekijk en pas filters toe op traces",
     "spansLabel": "spans",
     "errorsLabel": "fouten",
+    "errorStrip": {
+      "spanLabel": "{service} · {operation}",
+      "menuTitle": "Foutspans, diepste eerst"
+    },
     "previousMatch": "Vorige wedstrijd",
     "nextMatch": "Volgende wedstrijd",
     "searchInSpans": "Zoeken in spans",
@@ -15401,6 +15432,22 @@
       "roleAssistant": "Assistent",
       "roleSystem": "Systeem",
       "roleTool": "Tool"
+    },
+    "results": {
+      "tracesWithMatchingSpan": "{count} trace met een overeenkomende span | {count} traces met een overeenkomende span",
+      "spansColumnTooltip": "Totaal aantal spans in de trace",
+      "fieldValueCountsCaption": "Aantallen zijn spans met deze waarde, in het huidige bereik",
+      "errorColumn": "Fout",
+      "eventsColumn": "Gebeurtenissen",
+      "eventExceptions": "{count} uitzondering | {count} uitzonderingen",
+      "eventLogs": "{count} log | {count} logs",
+      "eventCounts": "{exceptions} · {logs}",
+      "eventsHoverTitle": "Gebeurtenissen op {operation}",
+      "eventsHoverOrder": "{count}, in tijdsvolgorde",
+      "eventKindException": "uitzondering",
+      "eventKindLog": "log",
+      "eventOffset": "+{offset}",
+      "moreEvents": "+{count} meer"
     },
     "tableColumns": {
       "service": "Service",
@@ -22599,6 +22646,7 @@
   },
   "promql": {
     "operations": {
+      "offsetDoc": "Leest de metriek zoals die de opgegeven duur geleden was",
       "rateDoc": "Berekent de gemiddelde toename per seconde over het opgegeven tijdsbereik",
       "irateDoc": "Berekent de directe toename per seconde op basis van de laatste twee gegevenspunten",
       "increaseDoc": "Berekent de totale toename over het opgegeven tijdsbereik",

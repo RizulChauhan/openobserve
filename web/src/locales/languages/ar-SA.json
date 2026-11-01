@@ -13651,7 +13651,12 @@
           "colP90": "p90",
           "colP99": "p99",
           "addToDashboard": "إضافة إلى لوحة المعلومات",
-          "panelTitle": "{title} · {metric}"
+          "panelTitle": "{title} · {metric}",
+          "sortAvg": "المتوسط",
+          "sortAvgTitle": "رتّب القيم حسب متوسطها خلال النافذة",
+          "sortOutlying": "الشاذة",
+          "sortOutlyingTitle": "رتّب القيم حسب مدى ابتعاد سلاسلها عن السلاسل الأخرى",
+          "outlier": "قيمة شاذة"
         },
         "related": {
           "empty": "لا توجد مقاييس ذات صلة",
@@ -13685,6 +13690,15 @@
       "allTitle": "كل المقاييس، بما في ذلك تلك التي لا تحتوي على بيانات ضمن هذا النطاق",
       "sortAsc": "من أ إلى ي",
       "sortDesc": "Z–A",
+      "sortDashboards": "لوحات المعلومات",
+      "sortDashboardsTitle": "الأكثر استخدامًا في لوحات المعلومات أولًا",
+      "sortAlerts": "التنبيهات",
+      "sortAlertsTitle": "الأكثر استخدامًا في التنبيهات أولًا",
+      "usageInDashboards": "في لوحات المعلومات",
+      "usageHasAlerts": "لديه تنبيهات",
+      "usageInSlos": "في SLOs",
+      "usageLoading": "جارٍ تحميل أماكن استخدام المقاييس",
+      "usageFailed": "الاستخدام غير متاح، أعد المحاولة",
       "viewGrid": "الشبكة",
       "viewRows": "الصفوف",
       "modeExplore": "استكشاف",
@@ -13776,9 +13790,9 @@
         "selectLabel": "اختر علامة تجارية",
         "invalidLabel": "اسم الملصق غير صالح.",
         "selectOrTypeValue": "اختر أو اكتب قيمة",
-        "operatorHelp": "= هي بالضبط هذه القيمة\n!= ليست هذه القيمة بأي حال من الأحوال\n=~ تطابق regex — استخدم 500{'|'}503 لمطابقة أي منهما\n!~ لا يتطابق مع regex\n\nيتم دمج الفلاتر مع AND. لمطابقة أي من قيمتين، استخدم =~ مع regex.",
+        "operatorHelp": "=  هي هذه القيمة بالضبط\n!=  هي أي قيمة غير هذه القيمة\n=~  يطابق تعبيرًا نمطيًا — استخدم 500{'|'}503 لمطابقة أي منهما\n!~  لا يطابق تعبيرًا نمطيًا\n\nتُدمج الفلاتر باستخدام AND. لمطابقة أي من قيمتين، استخدم =~ مع تعبير نمطي أو أضف مجموعة OR.",
         "andSeparator": "و",
-        "andSeparatorTitle": "يتم دمج الفلاتر مع AND — يجب أن يتطابق المقياس مع جميعها. لمطابقة أي من قيمتين، استخدم عامل =~ مع Regex.",
+        "andSeparatorTitle": "تُدمج الفلاتر باستخدام AND — يجب أن يطابق المقياس جميعها. لمطابقة أي من قيمتين، استخدم المعامل =~ مع تعبير نمطي أو أضف مجموعة OR.",
         "noSuggestions": "لا اقتراحات — اكتب قيمة.",
         "moreFilters": "+{count} أكثر",
         "moreFiltersTooltip": "انقر لعرض جميع الفلاتر المداخلة",
@@ -13846,14 +13860,23 @@
       "regexPattern": "نمط Regex (مثل prod.*)",
       "regexNotMatching": "عدم تطابق Regex (مثلا، اختبار.*)"
     },
+    "labelGroups": {
+      "addGroup": "+ مجموعة OR",
+      "addGroupTooltip": "أضف مجموعة من الفلاتر؛ تطابق السلسلة عندما تطابق أي مجموعة",
+      "addToGroup": "أضف فلترًا إلى هذه المجموعة",
+      "anyOf": "أي من",
+      "andAnyOf": "وأي من",
+      "or": "أو",
+      "not": "ليس",
+      "notTooltip": "طابِق السلسلة التي لا تطابقها هذه المجموعة بأكملها",
+      "tooManyBranches": "تتوسع هذه الفلاتر إلى {count} محدِّدات منفصلة؛ يمكن تشغيل {max} كحد أقصى. ادمج القيم في فلتر تعبير نمطي واحد أو أزل مجموعة."
+    },
     "builderSwitch": {
       "unsupported": "لا يمكن للمنشئ عرض {construct}",
       "twoMetrics": "لا يمكن للمنشئ عرض عملية بين مقياسين — استخدم صيغة",
       "noMetric": "يحتاج المنشئ إلى استعلام على مقياس مسمى واحد",
       "mismatch": "لا يمكن للمنشئ عرض هذا الاستعلام بدقة",
       "constructs": {
-        "without": "تجميع without (…)",
-        "offset": "مُعدِّل إزاحة",
         "at": "مُعدِّل {'@'}",
         "orMatchers": "or بين مطابِقات التسميات",
         "subquery": "استعلام فرعي",
@@ -13887,6 +13910,10 @@
         "byLabelsLabel": "حسب العلامات التجارية",
         "quantileLabel": "كوانتيل",
         "kLabel": "K",
+        "withoutLabel": "بدون (إسقاط هذه التسميات)",
+        "withoutDesc": "جمّع مع إسقاط التسميات المحددة واحتفظ بكل تسمية أخرى",
+        "offsetLabel": "الإزاحة",
+        "offsetDesc": "مدة الرجوع إلى الخلف لقراءة المقياس، مثل 1h أو 1d",
         "nearestMultipleLabel": "أقرب مضاعف"
       },
       "rangeOnlyFirst": "يمكن أن تكون دالة النطاق الخطوة الأولى فقط",
@@ -15152,6 +15179,10 @@
     "reviewAndApplyFilters": "راجع وتطبيق الفلاتر على Traces",
     "spansLabel": "الامتدادات",
     "errorsLabel": "أخطاء",
+    "errorStrip": {
+      "spanLabel": "{service} · {operation}",
+      "menuTitle": "امتدادات الأخطاء، الأعمق أولًا"
+    },
     "previousMatch": "التطابق السابق",
     "nextMatch": "التطابق التالي",
     "searchInSpans": "البحث في الامتدادات",
@@ -15401,6 +15432,22 @@
       "roleAssistant": "مساعد",
       "roleSystem": "النظام",
       "roleTool": "الأداة"
+    },
+    "results": {
+      "tracesWithMatchingSpan": "{count} تتبع بامتداد مطابق | {count} عمليات تتبع بامتداد مطابق",
+      "spansColumnTooltip": "إجمالي الامتدادات في التتبع",
+      "fieldValueCountsCaption": "الأعداد هي امتدادات تحمل هذه القيمة، ضمن النطاق الحالي",
+      "errorColumn": "خطأ",
+      "eventsColumn": "الأحداث",
+      "eventExceptions": "{count} استثناء | {count} استثناءات",
+      "eventLogs": "{count} سجل | {count} سجلات",
+      "eventCounts": "{exceptions} · {logs}",
+      "eventsHoverTitle": "الأحداث على {operation}",
+      "eventsHoverOrder": "{count}، بالترتيب الزمني",
+      "eventKindException": "استثناء",
+      "eventKindLog": "سجل",
+      "eventOffset": "+{offset}",
+      "moreEvents": "+{count} أخرى"
     },
     "tableColumns": {
       "service": "الخدمة",
@@ -22599,6 +22646,7 @@
   },
   "promql": {
     "operations": {
+      "offsetDoc": "يقرأ المقياس كما كان قبل المدة المحددة",
       "rateDoc": "يحسب متوسط معدل الزيادة في الثانية خلال النطاق الزمني المحدد",
       "irateDoc": "يحسب معدل الزيادة الفورية في الثانية بناء على آخر نقطتي بيانات",
       "increaseDoc": "يحسب الزيادة الكلية خلال النطاق الزمني المحدد",
