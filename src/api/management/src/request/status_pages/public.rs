@@ -868,8 +868,6 @@ mod tests {
         String::from_utf8(bytes.to_vec()).unwrap()
     }
 
-    // Synthetics is off in tests, so every DB-backed path answers "unknown": a 200 can only come
-    // from the cache.
     #[tokio::test]
     async fn page_shell_is_served_from_the_shard_cache() {
         prime("t-page-public", public_entry("{}"), Instant::now());
@@ -1075,9 +1073,24 @@ mod tests {
         let stale = Instant::now() - CACHE_TTL - Duration::from_secs(1);
         prime(slug, public_entry("{}"), stale);
         assert!(cache_get(slug).is_none());
+        // Injected: a real miss reads the meta DB, whose schema differs between runs.
+        let kind = resolve_with(
+            slug,
+            |_| async { Ok((Cached::Missing, None)) },
+            |_| async { Ok::<_, String>(true) },
+        )
+        .await;
+        assert!(matches!(kind, Cached::Missing));
+        assert!(matches!(cache_get(slug), Some((Cached::Missing, None))));
+        let cached = resolve_with(
+            slug,
+            |_| async { panic!("a negative-cached miss must not reload") },
+            |_| async { Ok::<_, String>(true) },
+        )
+        .await;
+        assert!(matches!(cached, Cached::Missing));
         let resp = snapshot(Path(slug.into()), None, HeaderMap::new()).await;
         assert_eq!(resp.status(), StatusCode::NOT_FOUND);
-        assert!(matches!(cache_get(slug), Some((Cached::Missing, None))));
     }
 
     #[tokio::test]

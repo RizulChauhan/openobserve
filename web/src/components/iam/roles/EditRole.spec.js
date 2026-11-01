@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { defineComponent } from "vue";
-import { mount, flushPromises } from "@vue/test-utils";
+import { mount, flushPromises, enableAutoUnmount } from "@vue/test-utils";
 import i18n from "@/locales";
 import store from "@/test/unit/helpers/store";
 import router from "@/test/unit/helpers/router";
@@ -621,6 +621,9 @@ function useSavedGrantsFixture() {
 }
 
 const mountEditRoleVm = async () => (await mountEditRole()).vm;
+
+// A wrapper left mounted stays live, and hundreds of them slowed each later test into timeouts.
+enableAutoUnmount(afterEach);
 
 beforeEach(() => {
   // A draft one test leaves behind would open the restore dialog on the next mount of the same role.

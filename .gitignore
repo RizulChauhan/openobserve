@@ -2,7 +2,6 @@
 .DS_Store
 .history
 /.idea/
-.vscode/
 
 # ---------- node / web ----------
 node_modules/
@@ -18,7 +17,6 @@ node_modules/
 /docs/
 
 # ---------- env files ----------
-/.env*
 
 # ---------- runtime data ----------
 /tmp/
@@ -86,3 +84,4 @@ rustc-ice-*.txt
 .screenshots/
 
 __pycache__/
+config.bat
