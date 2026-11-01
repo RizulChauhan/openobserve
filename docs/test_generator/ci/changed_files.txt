@@ -1,0 +1,13 @@
+.claude/skills/ui-architect/references/core-controls-table.md
+tests/ui-testing/ci-matrix/ci_matrix_regression.json
+tests/ui-testing/pages/tracesPages/tracesPage.js
+tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-15477-open-trace-new-tab.spec.js
+web/src/lib/core/Table/OTable.types.ts
+web/src/lib/core/Table/OTable.vue
+web/src/lib/core/Table/sub-components/OTableBody.vue
+web/src/lib/core/Table/sub-components/OTableBodyRow.spec.ts
+web/src/lib/core/Table/sub-components/OTableBodyRow.vue
+web/src/plugins/traces/SearchResult.spec.ts
+web/src/plugins/traces/SearchResult.vue
+web/src/plugins/traces/components/TracesSearchResultList.spec.ts
+web/src/plugins/traces/components/TracesSearchResultList.vue

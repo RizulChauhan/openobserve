@@ -1,0 +1,7 @@
+[
+  {
+    "title": "right-click context menu \"Open in New Tab\" opens the trace in a new tab and keeps the list",
+    "action": "append",
+    "verifies": "right-clicking a result cell and selecting Open in New Tab opens exactly one new tab at the trace-details URL while the original tab stays on the results list"
+  }
+]

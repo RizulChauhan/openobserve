@@ -1,0 +1,30 @@
+{
+  "feature_slug": "open-trace-new-tab",
+  "feature_title": "Traces Open Result in New Tab",
+  "area": "Traces",
+  "edition": "oss",
+  "needs_e2e": true,
+  "needs_api": false,
+  "spec_filename": "traces-15477-open-trace-new-tab.spec.js",
+  "spec_path": "tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-15477-open-trace-new-tab.spec.js",
+  "playwright_group": "Traces-Regression",
+  "source_files": [
+    "web/src/plugins/traces/SearchResult.vue",
+    "web/src/plugins/traces/components/TracesSearchResultList.vue",
+    "web/src/lib/core/Table/sub-components/OTableBodyRow.vue",
+    "web/src/lib/core/Table/OTable.vue",
+    "web/src/lib/core/Table/sub-components/OTableBody.vue",
+    "web/src/lib/core/Table/OTable.types.ts"
+  ],
+  "existing_tests_in_diff": true,
+  "skip": false,
+  "skip_reason": "",
+  "rationale": {
+    "edition": "All 13 changed paths live in OSS-owned locations: web/src/lib/core/Table/**, web/src/plugins/traces/**, and tests/ui-testing/**. None sit under enterprise/ or o2_enterprise/, and the touched components carry no isCloud/isEnterprise or withFeatureGate gating — the traces result list and core OTable render in the plain OSS build. This is an OSS feature.",
+    "skip": "Not skipped. The change alters a real user-facing interaction (opening a trace result in a new tab via link, ctrl/cmd-click, middle-click, and a context-menu item), and there is no explicit opt-out: the trigger comment is empty and no tests-added label was passed.",
+    "e2e": "E2E is warranted. The change adds a new row-auxclick event to the core table and turns the traces operation-name cell into a real anchor, introducing new click/modifier behavior, a new context-menu entry, and multi-tab navigation that must be verified against the real UI (window.open target, href correctness, and the list staying put).",
+    "area": "Traces. The bulk of the behavioral changes are in web/src/plugins/traces/SearchResult.vue and web/src/plugins/traces/components/TracesSearchResultList.vue, and the dev-authored sibling spec already lives under tests/ui-testing/playwright-tests/RegressionSet/Traces/.",
+    "group": "The dev already registered the spec in ci_matrix_regression.json inside the Traces-Regression run_files list (adjacent to traces-15269-services-catalog-state.spec.js), and the spec carries @regression/@tracesRegression tags, so Traces-Regression is the correct matrix shard.",
+    "existing_tests": "A new Playwright E2E spec — tests/ui-testing/playwright-tests/RegressionSet/Traces/traces-15477-open-trace-new-tab.spec.js — is added in the diff and covers the new open-in-new-tab behavior (href presence, ctrl/cmd/middle-click new tab, plain-click same tab). The changed web/src/**/*.spec.ts files are Vitest unit tests and are not E2E coverage."
+  }
+}

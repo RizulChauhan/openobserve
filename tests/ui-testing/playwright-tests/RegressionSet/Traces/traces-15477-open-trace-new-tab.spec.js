@@ -62,4 +62,20 @@ test.describe('Open a trace result in a new tab (#15477)', () => {
     await expect(page).toHaveURL(new RegExp(DETAILS_PATH));
     expect(context.pages()).toHaveLength(1);
   });
+
+  test('right-click context menu "Open in New Tab" opens the trace in a new tab and keeps the list', {
+    tag: ['@enhancement-15477', '@P2', '@regression', '@tracesRegression'],
+  }, async ({ page, context }) => {
+    const opened = pm.tracesPage.trackNewPages(context);
+
+    await pm.tracesPage.firstRowNonLinkCell().click({ button: 'right' });
+    await expect(pm.tracesPage.traceContextMenuOpenNewTab()).toBeVisible();
+    await pm.tracesPage.traceContextMenuOpenNewTab().click();
+
+    await pm.tracesPage.expectOneNewPage(opened);
+    await expect(opened[0]).toHaveURL(new RegExp(DETAILS_PATH));
+    await opened[0].close();
+
+    expect(page.url(), 'the original tab must stay on the results list').not.toContain(DETAILS_PATH);
+  });
 });

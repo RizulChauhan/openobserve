@@ -908,6 +908,10 @@ export class TracesPage {
       .first();
   }
 
+  traceContextMenuOpenNewTab() {
+    return this.page.locator('[data-test="trace-context-menu-open-new-tab"]');
+  }
+
   trackNewPages(context) {
     const opened = [];
     context.on('page', (p) => opened.push(p));
